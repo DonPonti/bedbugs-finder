@@ -1,35 +1,12 @@
-import React, { useState, useMemo, useEffect } from 'react';
+
+import React, { useState, useMemo } from 'react';
 import { HotelCard } from '../components/HotelCard';
 import { Seo } from '../components/Seo';
-import type { Hotel } from '../types';
+import { hotels } from '../data/hotels';
 
 export const HomePage: React.FC = () => {
-  const [hotels, setHotels] = useState<Hotel[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-
-  useEffect(() => {
-    const fetchHotels = async () => {
-      try {
-        // Use an absolute path to ensure it works on deployed environments
-        const response = await fetch('/data/hotels.json');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setHotels(data);
-      } catch (e) {
-        setError("Failed to load hotel data. Please try again later.");
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchHotels();
-  }, []);
 
   const filteredHotels = useMemo(() => {
     return hotels
@@ -42,33 +19,17 @@ export const HomePage: React.FC = () => {
         return matchesSearch && matchesStatus;
       })
       .sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime());
-  }, [hotels, searchTerm, statusFilter]);
+  }, [searchTerm, statusFilter]);
 
   const topCleanHotels = useMemo(() => 
     hotels.filter(h => h.status === 'Clean')
           .sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime())
-          .slice(0, 3), [hotels]);
+          .slice(0, 3), []);
 
   const recentlyReported = useMemo(() =>
     hotels.filter(h => h.status === 'Pest Reported')
           .sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime())
-          .slice(0, 3), [hotels]);
-
-  if (loading) {
-    return (
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
-        <p className="text-lg text-slate-500 dark:text-slate-400">Loading hotels...</p>
-      </main>
-    );
-  }
-
-  if (error) {
-    return (
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
-        <p className="text-lg text-red-500 dark:text-red-400">{error}</p>
-      </main>
-    );
-  }
+          .slice(0, 3), []);
 
   return (
     <>

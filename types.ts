@@ -26,9 +26,3 @@ export interface BlogPost {
   content: string;
   image: string;
 }
-
-export interface UserReview {
-  rating: number;
-  name: string;
-  comment: string;
-}
