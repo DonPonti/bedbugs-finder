@@ -14,6 +14,8 @@ export interface Hotel {
   description: string;
   reports: Report[];
   image: string;
+  avgRating: number;
+  priceRange: string;
 }
 
 export interface BlogPost {

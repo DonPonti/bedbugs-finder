@@ -3,9 +3,25 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Seo } from '../components/Seo';
 import { JsonLd } from '../components/JsonLd';
-import { PencilIcon } from '../components/icons';
+import { PencilIcon, StarIcon, DollarSignIcon } from '../components/icons';
 import { hotels as allHotels } from '../data/hotels';
 import type { Hotel } from '../types';
+
+const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
+  return (
+    <div className="flex items-center">
+      {[...Array(5)].map((_, index) => (
+        <StarIcon 
+          key={index} 
+          className={`w-6 h-6 ${index < Math.round(rating) ? 'text-amber-400' : 'text-slate-300 dark:text-slate-600'}`}
+          solid={index < Math.round(rating)}
+        />
+      ))}
+      <span className="ml-2 text-slate-600 dark:text-slate-300 font-semibold">{rating.toFixed(1)}</span>
+      <span className="ml-1 text-sm text-slate-500 dark:text-slate-400">/ 5</span>
+    </div>
+  );
+};
 
 export const HotelDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -20,6 +36,8 @@ export const HotelDetailPage: React.FC = () => {
     city: '',
     image: '',
     description: '',
+    avgRating: 0,
+    priceRange: ''
   });
 
   useEffect(() => {
@@ -29,6 +47,8 @@ export const HotelDetailPage: React.FC = () => {
         city: hotel.city,
         image: hotel.image,
         description: hotel.description,
+        avgRating: hotel.avgRating,
+        priceRange: hotel.priceRange,
       });
     }
   }, [isEditing, hotel]);
@@ -62,6 +82,8 @@ export const HotelDetailPage: React.FC = () => {
         city: formData.city,
         image: formData.image,
         description: formData.description,
+        avgRating: Number(formData.avgRating),
+        priceRange: formData.priceRange,
       });
       setIsEditing(false);
       alert("Hotel details updated locally.\n\nPlease note: This change is not saved permanently. To contribute, please follow the guide on the 'Report a Hotel' page.");
@@ -101,6 +123,14 @@ export const HotelDetailPage: React.FC = () => {
                     <div>
                         <label htmlFor="city" className="block text-sm font-medium text-slate-700 dark:text-slate-300">City</label>
                         <input type="text" name="city" id="city" value={formData.city} onChange={handleInputChange} className={inputStyles}/>
+                    </div>
+                     <div>
+                        <label htmlFor="avgRating" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Average Rating (0-5)</label>
+                        <input type="number" name="avgRating" id="avgRating" value={formData.avgRating} onChange={handleInputChange} className={inputStyles} step="0.1" min="0" max="5"/>
+                    </div>
+                     <div>
+                        <label htmlFor="priceRange" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Price Range (e.g., $, $$, $$$)</label>
+                        <input type="text" name="priceRange" id="priceRange" value={formData.priceRange} onChange={handleInputChange} className={inputStyles}/>
                     </div>
                      <div>
                         <label htmlFor="description" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Description</label>
@@ -144,11 +174,27 @@ export const HotelDetailPage: React.FC = () => {
             </div>
           </div>
           
+          <div className="p-8 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+            <h2 className="text-xl font-bold mb-4 text-slate-800 dark:text-slate-100">Highlights</h2>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-8 space-y-4 sm:space-y-0">
+                <div className="flex items-center">
+                    <StarRating rating={hotel.avgRating} />
+                </div>
+                <div className="flex items-center">
+                    <DollarSignIcon className="w-6 h-6 mr-2 text-emerald-500" />
+                    <div>
+                      <span className="text-lg font-semibold text-slate-700 dark:text-slate-200">{hotel.priceRange}</span>
+                      <span className="ml-2 text-sm text-slate-500 dark:text-slate-400">Price Range</span>
+                    </div>
+                </div>
+            </div>
+          </div>
+
           <div className="p-8 border-t border-slate-200 dark:border-slate-700">
             <h2 className="text-2xl font-bold mb-4">Description & Details</h2>
-            <p className="text-slate-600 dark:text-slate-300 prose dark:prose-invert max-w-none">
-              {hotel.description}
-            </p>
+            <div className="text-slate-600 dark:text-slate-300 prose dark:prose-invert max-w-none">
+              {hotel.description.split('\n').map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+            </div>
           </div>
 
           <div className="p-8 border-t border-slate-200 dark:border-slate-700">
