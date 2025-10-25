@@ -50,7 +50,7 @@ export const BlogPostDetailPage: React.FC = () => {
       return;
     }
 
-    fetch(`../data/blogs/${id}.md`)
+    fetch(`/data/blogs/${id}.md`)
       .then(res => {
         if (!res.ok) {
           throw new Error('Blog post not found.');

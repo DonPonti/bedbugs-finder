@@ -11,7 +11,7 @@ export const HomePage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   
   useEffect(() => {
-    fetch('./data/hotels.json')
+    fetch('/data/hotels.json')
       .then(res => {
         if (!res.ok) {
           throw new Error('Network response was not ok');

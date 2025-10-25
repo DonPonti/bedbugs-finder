@@ -22,8 +22,8 @@ export const HotelDetailPage: React.FC = () => {
   });
 
   useEffect(() => {
-    // Corrected path for nested routes
-    fetch('../data/hotels.json')
+    // Use absolute path for fetch
+    fetch('/data/hotels.json')
       .then(res => {
         if (!res.ok) {
           throw new Error('Network response was not ok');
