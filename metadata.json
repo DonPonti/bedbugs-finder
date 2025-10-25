@@ -1,0 +1,5 @@
+{
+  "name": "BedBug Tracker",
+  "description": "A public directory of hotels, showing user-contributed reports about bedbugs or other pest problems to help travelers check if a hotel has recent pest complaints before booking.",
+  "requestFramePermissions": []
+}
