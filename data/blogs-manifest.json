@@ -1,0 +1,30 @@
+
+[
+  {
+    "id": "travel-safe-pest-prevention-tips",
+    "title": "Travel Safe: Top 5 Pest Prevention Tips for Hotel Stays",
+    "author": "Jane Doe, Entomologist",
+    "date": "2024-07-21",
+    "category": "Pest Prevention",
+    "excerpt": "Don't let unwanted guests ruin your trip. Here are five simple steps you can take to inspect your hotel room and prevent bedbugs from coming home with you.",
+    "image": "https://picsum.photos/seed/blog-pest-tips/800/600"
+  },
+  {
+    "id": "understanding-hotel-cleanliness-ratings",
+    "title": "Understanding Hotel Cleanliness Ratings and What They Mean",
+    "author": "Alex Smith, Travel Expert",
+    "date": "2024-07-15",
+    "category": "Travel Tips",
+    "excerpt": "You see cleanliness scores on booking sites, but what do they really mean? We break down the ratings and explain how to use them to choose a safer hotel.",
+    "image": "https://picsum.photos/seed/blog-ratings/800/600"
+  },
+  {
+    "id": "community-power-the-story-of-bedbug-tracker",
+    "title": "Community Power: The Story Behind BedBug Tracker",
+    "author": "The BedBug Tracker Team",
+    "date": "2024-07-10",
+    "category": "News",
+    "excerpt": "Learn about why we started BedBug Tracker and our mission to create a transparent, community-driven resource for safer travel.",
+    "image": "https://picsum.photos/seed/blog-story/800/600"
+  }
+]

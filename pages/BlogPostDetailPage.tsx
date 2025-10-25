@@ -6,6 +6,36 @@ import { BlogJsonLd } from '../components/BlogJsonLd';
 import { TagIcon } from '../components/icons';
 import type { BlogPost } from '../types';
 
+const parseMarkdown = (mdContent: string): BlogPost => {
+  const frontmatterMatch = mdContent.match(/^---\s*([\s\S]*?)\s*---/);
+  if (!frontmatterMatch) {
+    throw new Error("Invalid Markdown format: No frontmatter found.");
+  }
+
+  const frontmatterText = frontmatterMatch[1];
+  const content = mdContent.slice(frontmatterMatch[0].length).trim();
+
+  const metadata: { [key: string]: string } = {};
+  frontmatterText.split('\n').forEach(line => {
+    const [key, ...valueParts] = line.split(':');
+    if (key && valueParts.length > 0) {
+      const value = valueParts.join(':').trim();
+      metadata[key.trim()] = value.replace(/^['"]|['"]$/g, '');
+    }
+  });
+
+  return {
+    id: metadata.id,
+    title: metadata.title,
+    author: metadata.author,
+    date: metadata.date,
+    category: metadata.category,
+    excerpt: metadata.excerpt,
+    image: metadata.image,
+    content: content,
+  };
+};
+
 export const BlogPostDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   
@@ -14,25 +44,32 @@ export const BlogPostDetailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('../data/blog.json')
+    if (!id) {
+      setError('Blog post ID is missing.');
+      setLoading(false);
+      return;
+    }
+
+    fetch(`../data/blogs/${id}.md`)
       .then(res => {
         if (!res.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error('Blog post not found.');
         }
-        return res.json();
+        return res.text();
       })
-      .then((data: BlogPost[]) => {
-        const foundPost = data.find(p => p.id === id);
-        if (foundPost) {
-          setPost(foundPost);
-        } else {
-          setError('Blog post not found.');
+      .then(text => {
+        try {
+          const fullPost = parseMarkdown(text);
+          setPost(fullPost);
+        } catch (e) {
+          throw new Error('Failed to parse blog post.');
         }
-        setLoading(false);
       })
       .catch(err => {
-        console.error("Failed to fetch blog post:", err);
-        setError('Could not load blog data.');
+        console.error("Failed to fetch or parse blog post:", err);
+        setError(err.message || 'Could not load blog data.');
+      })
+      .finally(() => {
         setLoading(false);
       });
   }, [id]);
@@ -78,7 +115,7 @@ export const BlogPostDetailPage: React.FC = () => {
               By {post.author} on {post.date}
             </p>
              <div className="mt-6 prose prose-lg dark:prose-invert max-w-none text-slate-600 dark:text-slate-300">
-                {post.content.split('\n\n').map((paragraph, index) => (
+                {post.content?.split('\n\n').map((paragraph, index) => (
                   <p key={index}>{paragraph}</p>
                 ))}
             </div>

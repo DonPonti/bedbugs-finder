@@ -11,7 +11,7 @@ export const BlogPage: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>('All');
 
   useEffect(() => {
-    fetch('./data/blog.json')
+    fetch('./data/blogs-manifest.json')
       .then(res => {
         if (!res.ok) {
           throw new Error('Network response was not ok');
