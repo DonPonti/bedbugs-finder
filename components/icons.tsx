@@ -54,3 +54,9 @@ export const XIcon: React.FC<{ className?: string }> = ({ className }) => (
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
   </svg>
 );
+
+export const BedbugIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M21 9c-.55 0-1 .45-1 1v1h-2v-1c0-2.76-2.24-5-5-5S8 8.24 8 11v1H6v-1c0-.55-.45-1-1-1s-1 .45-1 1v2c0 .55.45 1 1 1h1v1c0 2.76 2.24 5 5 5s5-2.24 5-5v-1h1c.55 0 1-.45 1-1v-2c0-.55-.45-1-1-1zM9 13.5c-.83 0-1.5-.67-1.5-1.5S8.17 10.5 9 10.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm6 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+    </svg>
+);
