@@ -1,32 +1,17 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Seo } from '../components/Seo';
 import { BlogPostCard } from '../components/BlogPostCard';
 import { TagIcon } from '../components/icons';
-import type { BlogPost } from '../types';
+import { blogPosts } from '../data/blogPosts';
 
 export const BlogPage: React.FC = () => {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const [activeCategory, setActiveCategory] = useState<string>('All');
 
-  useEffect(() => {
-    fetch('/data/blogs-manifest.json')
-      .then(res => {
-        if (!res.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return res.json();
-      })
-      .then((data: BlogPost[]) => {
-        setPosts(data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error("Failed to fetch blog posts:", error);
-        setLoading(false);
-      });
-  }, []);
+  const posts = useMemo(() => 
+    [...blogPosts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()), 
+    []
+  );
 
   const categories = useMemo(() => {
     const allCategories = posts.map(p => p.category);
@@ -76,25 +61,19 @@ export const BlogPage: React.FC = () => {
             </div>
         </div>
         
-        {loading ? (
-          <div className="text-center py-16">
-            <p className="text-slate-500 dark:text-slate-400">Loading posts...</p>
-          </div>
-        ) : (
-          <>
-            {filteredPosts.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredPosts.map(post => (
-                  <BlogPostCard key={post.id} post={post} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-16">
-                <p className="text-slate-500 dark:text-slate-400">No posts found in this category.</p>
-              </div>
-            )}
-          </>
-        )}
+        <>
+          {filteredPosts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredPosts.map(post => (
+                <BlogPostCard key={post.id} post={post} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16">
+              <p className="text-slate-500 dark:text-slate-400">No posts found in this category.</p>
+            </div>
+          )}
+        </>
       </main>
     </>
   );

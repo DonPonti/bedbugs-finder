@@ -23,6 +23,6 @@ export interface BlogPost {
   date: string;
   category: string;
   excerpt: string;
-  content?: string;
+  content: string;
   image: string;
 }

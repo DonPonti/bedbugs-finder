@@ -1,32 +1,12 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { HotelCard } from '../components/HotelCard';
 import { Seo } from '../components/Seo';
-import type { Hotel } from '../types';
+import { hotels } from '../data/hotels';
 
 export const HomePage: React.FC = () => {
-  const [hotels, setHotels] = useState<Hotel[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  
-  useEffect(() => {
-    fetch('/data/hotels.json')
-      .then(res => {
-        if (!res.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return res.json();
-      })
-      .then((data: Hotel[]) => {
-        setHotels(data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error("Failed to fetch hotels:", error);
-        setLoading(false);
-      });
-  }, []);
 
   const filteredHotels = useMemo(() => {
     return hotels
@@ -39,17 +19,17 @@ export const HomePage: React.FC = () => {
         return matchesSearch && matchesStatus;
       })
       .sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime());
-  }, [hotels, searchTerm, statusFilter]);
+  }, [searchTerm, statusFilter]);
 
   const topCleanHotels = useMemo(() => 
     hotels.filter(h => h.status === 'Clean')
           .sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime())
-          .slice(0, 3), [hotels]);
+          .slice(0, 3), []);
 
   const recentlyReported = useMemo(() =>
     hotels.filter(h => h.status === 'Pest Reported')
           .sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime())
-          .slice(0, 3), [hotels]);
+          .slice(0, 3), []);
 
   return (
     <>
@@ -100,43 +80,37 @@ export const HomePage: React.FC = () => {
           </div>
         </div>
         
-        {loading ? (
-          <div className="text-center py-16">
-            <p className="text-slate-500 dark:text-slate-400">Loading hotels...</p>
-          </div>
-        ) : (
-          <>
-            {searchTerm === '' && statusFilter === 'all' && (
-              <>
-                <section className="mb-12">
-                  <h2 className="text-2xl font-bold mb-6">Top Clean Hotels</h2>
+        <>
+          {searchTerm === '' && statusFilter === 'all' && (
+            <>
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6">Top Clean Hotels</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {topCleanHotels.map(hotel => <HotelCard key={hotel.id} hotel={hotel} />)}
+                </div>
+              </section>
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6 text-red-600 dark:text-red-400">Recently Reported</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {topCleanHotels.map(hotel => <HotelCard key={hotel.id} hotel={hotel} />)}
-                  </div>
-                </section>
-                <section className="mb-12">
-                  <h2 className="text-2xl font-bold mb-6 text-red-600 dark:text-red-400">Recently Reported</h2>
-                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {recentlyReported.map(hotel => <HotelCard key={hotel.id} hotel={hotel} />)}
-                  </div>
-                </section>
-                <h2 className="text-2xl font-bold mb-6 border-t border-slate-200 dark:border-slate-700 pt-8">All Hotels</h2>
-              </>
-            )}
-            
-            {filteredHotels.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                {filteredHotels.map(hotel => (
-                  <HotelCard key={hotel.id} hotel={hotel} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-16">
-                <p className="text-slate-500 dark:text-slate-400">No hotels found matching your criteria.</p>
-              </div>
-            )}
-          </>
-        )}
+                  {recentlyReported.map(hotel => <HotelCard key={hotel.id} hotel={hotel} />)}
+                </div>
+              </section>
+              <h2 className="text-2xl font-bold mb-6 border-t border-slate-200 dark:border-slate-700 pt-8">All Hotels</h2>
+            </>
+          )}
+          
+          {filteredHotels.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {filteredHotels.map(hotel => (
+                <HotelCard key={hotel.id} hotel={hotel} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16">
+              <p className="text-slate-500 dark:text-slate-400">No hotels found matching your criteria.</p>
+            </div>
+          )}
+        </>
       </main>
     </>
   );

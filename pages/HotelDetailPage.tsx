@@ -1,17 +1,18 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Seo } from '../components/Seo';
 import { JsonLd } from '../components/JsonLd';
 import { PencilIcon } from '../components/icons';
+import { hotels as allHotels } from '../data/hotels';
 import type { Hotel } from '../types';
 
 export const HotelDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   
-  const [hotel, setHotel] = useState<Hotel | undefined>(undefined);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const initialHotel = useMemo(() => allHotels.find(h => h.id === id), [id]);
+
+  const [hotel, setHotel] = useState<Hotel | undefined>(initialHotel);
   const [isEditing, setIsEditing] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -20,32 +21,6 @@ export const HotelDetailPage: React.FC = () => {
     image: '',
     description: '',
   });
-
-  useEffect(() => {
-    // Use absolute path for fetch
-    fetch('/data/hotels.json')
-      .then(res => {
-        if (!res.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return res.json();
-      })
-      .then((data: Hotel[]) => {
-        const foundHotel = data.find(h => h.id === id);
-        if (foundHotel) {
-          setHotel(foundHotel);
-        } else {
-          setError('Hotel not found.');
-        }
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Failed to fetch hotel details:", err);
-        setError('Could not load hotel data.');
-        setLoading(false);
-      });
-  }, [id]);
-
 
   useEffect(() => {
     if (isEditing && hotel) {
@@ -58,24 +33,10 @@ export const HotelDetailPage: React.FC = () => {
     }
   }, [isEditing, hotel]);
 
-  if (loading) {
-    return (
-       <div className="text-center py-20">
-        <h1 className="text-2xl font-bold">Loading Hotel Details...</h1>
-      </div>
-    )
-  }
+  useEffect(() => {
+    setHotel(allHotels.find(h => h.id === id));
+  }, [id]);
 
-  if (error) {
-    return (
-      <div className="text-center py-20">
-        <h1 className="text-2xl font-bold text-red-600">{error}</h1>
-        <Link to="/" className="text-emerald-600 hover:underline mt-4 inline-block">
-          &larr; Back to all hotels
-        </Link>
-      </div>
-    );
-  }
 
   if (!hotel) {
     return (
