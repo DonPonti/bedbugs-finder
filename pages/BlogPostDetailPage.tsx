@@ -6,6 +6,37 @@ import { BlogJsonLd } from '../components/BlogJsonLd';
 import { TagIcon } from '../components/icons';
 import type { BlogPost } from '../types';
 
+// Simple markdown renderer to handle bold text and numbered lists
+const processInline = (text: string) => {
+  const parts = text.split(/(\*\*.*?\*\*)/g); // Split by **bold**
+  return parts.map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={index}>{part.slice(2, -2)}</strong>;
+    }
+    return part;
+  });
+};
+
+const MarkdownRenderer: React.FC<{ content: string }> = ({ content }) => {
+  const elements = content.split('\n\n').map((block, blockIndex) => {
+    // Check for numbered lists
+    if (/^\d+\./.test(block)) {
+      const items = block.split('\n').map((item, itemIndex) => {
+        const itemContent = item.replace(/^\d+\.\s*/, '');
+        const processedItem = processInline(itemContent);
+        return <li key={itemIndex}>{processedItem}</li>;
+      });
+      return <ol key={blockIndex} className="list-decimal list-inside space-y-2 my-4">{items}</ol>;
+    }
+    
+    // Process paragraphs
+    const processedBlock = processInline(block);
+    return <p key={blockIndex}>{processedBlock}</p>;
+  });
+
+  return <>{elements}</>;
+};
+
 export const BlogPostDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [post, setPost] = useState<BlogPost | null>(null);
@@ -87,9 +118,7 @@ export const BlogPostDetailPage: React.FC = () => {
               By {post.author} on {post.date}
             </p>
              <div className="mt-6 prose prose-lg dark:prose-invert max-w-none text-slate-600 dark:text-slate-300">
-                {(post.content || '').split('\n\n').map((paragraph, index) => (
-                  <p key={index}>{paragraph}</p>
-                ))}
+                <MarkdownRenderer content={post.content || ''} />
             </div>
           </div>
         </article>
