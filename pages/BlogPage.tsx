@@ -1,34 +1,16 @@
-
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Seo } from '../components/Seo';
 import { BlogPostCard } from '../components/BlogPostCard';
 import { TagIcon } from '../components/icons';
-import type { BlogPost } from '../types';
+import { blogPosts } from '../data/blogPosts';
 
 export const BlogPage: React.FC = () => {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('All');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const response = await fetch('/data/blogs-manifest.json');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        data.sort((a: BlogPost, b: BlogPost) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        setPosts(data);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Failed to load posts.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchPosts();
-  }, []);
+  const posts = useMemo(() => 
+    [...blogPosts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+    []
+  );
 
   const categories = useMemo(() => {
     const allCategories = posts.map(p => p.category);
@@ -72,37 +54,23 @@ export const BlogPage: React.FC = () => {
           </p>
         </div>
 
-        { !loading && !error && posts.length > 0 && (
-            <div className="mb-10 text-center">
-                <div className="flex flex-wrap justify-center gap-2">
-                    {categories.map(cat => <CategoryButton key={cat} category={cat} />)}
-                </div>
+        <div className="mb-10 text-center">
+            <div className="flex flex-wrap justify-center gap-2">
+                {categories.map(cat => <CategoryButton key={cat} category={cat} />)}
             </div>
-        )}
+        </div>
         
         <>
-          {loading && (
-            <div className="text-center py-16">
-              <p className="text-slate-500 dark:text-slate-400">Loading posts...</p>
-            </div>
-          )}
-          {error && (
-            <div className="text-center py-16">
-              <p className="text-red-500">Error loading posts: {error}</p>
-            </div>
-          )}
-          {!loading && !error && filteredPosts.length > 0 ? (
+          {filteredPosts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredPosts.map(post => (
                 <BlogPostCard key={post.id} post={post} />
               ))}
             </div>
           ) : (
-            !loading && !error && (
-                <div className="text-center py-16">
-                    <p className="text-slate-500 dark:text-slate-400">No posts found in this category.</p>
-                </div>
-            )
+            <div className="text-center py-16">
+                <p className="text-slate-500 dark:text-slate-400">No posts found in this category.</p>
+            </div>
           )}
         </>
       </main>
